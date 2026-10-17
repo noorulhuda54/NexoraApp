@@ -1,0 +1,9 @@
+{
+  "name": "nascon-backend",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/server.js",
+  "scripts": { "start": "node src/server.js", "worker": "node src/worker.js", "test": "node --test --experimental-test-coverage ../tests/" },
+  "engines": { "node": ">=20" },
+  "dependencies": { "express": "4.21.2", "pg": "8.13.1", "ioredis": "5.4.2" }
+}

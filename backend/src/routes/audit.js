@@ -1,0 +1,32 @@
+'use strict';
+const fixtures = require('../services/fixtures');
+const matches = require('../services/matches');
+const standings = require('../services/standings');
+const roster = require('../services/roster');
+const store = require('../services/store');
+const rbac = require('../services/rbac');
+const sync = require('../services/sync');
+
+module.exports = (app) => {
+  const { wrap, body } = app.locals;
+  const A = '/audit/v1';
+  app.post(`${A}/fixtures`, wrap((req, res) => res.status(200).json(fixtures.generate(body(req)))));
+  app.post(`${A}/leagues`, wrap((req, res) => res.status(201).json(standings.createLeague(body(req)))));
+  app.post(`${A}/events`, wrap((req, res) => { const r = matches.appendEvent(body(req)); res.status(r.status).json(r.body); }));
+  app.get(`${A}/score/:match_id`, wrap((req, res) => res.json(matches.getScore(req.params.match_id))));
+  app.get(`${A}/standings/:league_id`, wrap((req, res) => res.json(standings.computeStandings(req.params.league_id))));
+  app.post(`${A}/roster/setup`, wrap((req, res) => res.status(201).json(roster.setup(body(req)))));
+  app.post(`${A}/roster/transfer`, wrap((req, res) => { const r = roster.transfer(body(req)); res.status(r.status).json(r.body); }));
+  app.get(`${A}/roster/history/:player_id`, wrap((req, res) => res.json(roster.history(req.params.player_id, req.query.as_of))));
+  app.post(`${A}/checkout`, wrap(async (req, res) => { const r = await store.checkout(body(req)); res.status(r.status).json(r.body); }));
+  app.get(`${A}/inventory/:variant_id`, wrap((req, res) => res.json(store.inventory(req.params.variant_id))));
+  app.post(`${A}/rbac-matrix`, wrap((req, res) => res.json(rbac.matrix())));
+  app.post(`${A}/rbac/tenants`, wrap((req, res) => res.json(rbac.probe(req, 'P1'))));
+  app.post(`${A}/rbac/leagues/:id/fixtures`, wrap((req, res) => res.json(rbac.probe(req, 'P2', req.params.id))));
+  app.post(`${A}/rbac/clubs/:id/roster`, wrap((req, res) => res.json(rbac.probe(req, 'P3', req.params.id))));
+  app.post(`${A}/rbac/clubs/:id/products`, wrap((req, res) => res.json(rbac.probe(req, 'P4', req.params.id))));
+  app.patch(`${A}/rbac/players/:id`, wrap((req, res) => res.json(rbac.probe(req, 'P5', req.params.id))));
+  app.get(`${A}/rbac/clubs/:id`, wrap((req, res) => res.json(rbac.probe(req, 'P6', req.params.id))));
+  app.get(`${A}/rbac/platform/config`, wrap((req, res) => res.json(rbac.probe(req, 'P7'))));
+  app.post(`${A}/offline-sync`, wrap((req, res) => res.json(sync.sync(body(req)))));
+};

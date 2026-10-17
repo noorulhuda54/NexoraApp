@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "NaSCon League",
+    "slug": "nascon-league",
+    "version": "1.0.0",
+    "orientation": "default",
+    "userInterfaceStyle": "light",
+    "android": {
+      "package": "com.nascon.league",
+      "versionCode": 1,
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE"
+      ]
+    },
+    "plugins": [
+      "expo-sqlite",
+      "expo-secure-store",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true,
+            "minSdkVersion": 24
+          }
+        }
+      ],
+      "expo-asset"
+    ]
+  }
+}
